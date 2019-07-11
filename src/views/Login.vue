@@ -30,7 +30,8 @@
 		<div class="login-footer">
 			<div
 				class="btn login-btn txt-s18 txt-center"
-				:class="{'btn-disabled': btnDisabled == true, 'btn-active': btnDisabled == false}"
+				:class="{'btn-disabled': canClick == false, 'btn-active': canClick == true}"
+				@click="loginClick"
 			>注册或登录</div>
 		</div>
 	</div>
@@ -40,9 +41,9 @@ export default {
 	name: "Login",
 	data() {
 		return {
-			phone: "", // 手机号,
+			phone: "13566676362", // 手机号,
 			areaCode: "+86", // 区号
-			phoneCode: "",
+			phoneCode: "1111",
 			leftSec: "", // 剩余秒
 			codeSent: false, // 验证码已经发送
 			timer: null // 定时器
@@ -55,14 +56,14 @@ export default {
 		// }
 	},
 	computed: {
-		btnDisabled() {
+		canClick() {
 			if (
 				!/^1[345789]\d{9}$/.test(this.phone) ||
 				!/^\d{4}$/.test(this.phoneCode)
 			) {
-				return true;
-			} else {
 				return false;
+			} else {
+				return true;
 			}
 		}
 	},
@@ -74,23 +75,27 @@ export default {
 				return false;
 			}
 			this.codeSent = true;
-      this.leftSec = 10;
-      let timer;
+			this.leftSec = 10;
+			let timer;
 			timer = setInterval(() => {
 				this.leftSec -= 1;
 				if (this.leftSec <= 1) {
-          this.codeSent = false;
-          clearInterval(timer);
-          return false;
+					this.codeSent = false;
+					clearInterval(timer);
+					return false;
 				}
 			}, 1000);
 		},
 		async loginClick() {
-			if (!this.btnDisabled) return false;
+      if (!this.canClick) return false;
+      this.$router.push({ name: "productDetail" });
 			let res = await this.$api.login({
 				code: this.phoneCode,
 				phone: this.areaCode + this.phone
 			});
+			if (res.errorCode == 0) {
+				this.$router.push({ name: "productDetail" });
+			}
 		}
 	}
 };
