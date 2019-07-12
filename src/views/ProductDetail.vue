@@ -211,7 +211,7 @@ export default {
 			if (!this.showSku) {
 				this.showSku = true;
 			} else {
-				this.$router.push({ name: "orderDetail", query: {} });
+				this.$router.push({ name: "order", query: {} });
 			}
 		}
 	}

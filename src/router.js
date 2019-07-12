@@ -18,5 +18,9 @@ export default new Router({
     path: '/reviews',
     name: 'reviews',
     component: () => import('./views/Reviews.vue')
+  },{
+    path: '/order',
+    name: 'order',
+    component: () => import('./views/Order.vue')
   }]
 })
