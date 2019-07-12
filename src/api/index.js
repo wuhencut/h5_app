@@ -47,6 +47,10 @@ export default {
   // 注册/登录
   login(data){
     return post('/v2/phone/login', data)
+  },
+  // 获取测评列表
+  getProductionAppraisal(data){
+    return post('/v2/star/production/appraisal', data)
   }
 }
 
