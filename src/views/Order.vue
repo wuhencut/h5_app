@@ -140,8 +140,7 @@ export default {
     height: 0.44rem;
     position:fixed;
     top: 0;
-    left: 0;
-    right: 0;
+    width: 3.75rem;
     background: #fff;
     line-height: 0.44rem;
     text-align: center;
@@ -159,8 +158,7 @@ export default {
   .page-footer {
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    width: 3.75rem;
     height: 0.66rem;
     background: #fff;
     .btn{

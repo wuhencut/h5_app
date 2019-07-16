@@ -315,9 +315,8 @@ export default {
 				object-fit: cover;
 			}
 		}
-		position: fixed;
-		left: 0;
-		right: 0;
+    position: fixed;
+    width: 3.75rem;
 		bottom: 0.5rem;
 		background: #fff;
 		z-index: 101;
@@ -336,9 +335,8 @@ export default {
 	.footer {
 		z-index: 101;
 		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
+    bottom: 0;
+    width: 3.76rem;
 		height: 0.5rem;
 		line-height: 0.5rem;
 		font-size: 0.18rem;
