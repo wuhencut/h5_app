@@ -30,5 +30,9 @@ export default new Router({
     path: '/addAddress',
     name: 'addAddress',
     component: () => import('./views/AddAddress.vue')
+  },{
+    path: '/download',
+    name: 'download',
+    component: () => import('./views/Download.vue')
   }]
 })
