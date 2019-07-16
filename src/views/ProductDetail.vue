@@ -57,8 +57,7 @@
 					<span class="txt-s18 txt-bold">产品详情</span>
 					<span class="txt-s12 xiushi">///</span>
 				</p>
-				<div class="content" v-html="detailData.description">
-				</div>
+				<div class="content" v-html="detailData.description"></div>
 			</div>
 			<div class="note">
 				<div class="refound-note">
@@ -109,14 +108,14 @@
 						<span v-for="sub in spec.value" class="spec">{{sub}}</span>
 					</div>
 				</div>
-        <div class="buy-num flex">
-          <span class="flex-s1 txt-s14 txt-bold">购买数量</span>
-          <div class="mod-num flex">
-            <span class="flex num-click" @click="changeNum('-')">-</span>
-            <span class="num">{{buyNum}}</span>
-            <span class="flex num-click" @click="changeNum('+')">+</span>
-          </div>
-        </div>
+				<div class="buy-num flex">
+					<span class="flex-s1 txt-s14 txt-bold">购买数量</span>
+					<div class="mod-num flex">
+						<span class="flex num-click" @click="changeNum('-')">-</span>
+						<span class="num">{{buyNum}}</span>
+						<span class="flex num-click" @click="changeNum('+')">+</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -126,7 +125,7 @@ export default {
 	name: "ProductDetail",
 	data() {
 		return {
-      buyNum: 1, // 购买数量
+			buyNum: 1, // 购买数量
 			showSku: false, // 展示sku
 			cover: false, // 是否上滑
 			navPro: true, // 当前在产品锚点
@@ -199,14 +198,14 @@ export default {
 	},
 	mounted() {},
 	methods: {
-    async changeNum(type){
-      if(this.buyNum == 1 && type == '-')return false;
-      if(type == '+'){
-        this.buyNum ++ ;
-      } else {
-        this.buyNum -- ;
-      }
-    },
+		async changeNum(type) {
+			if (this.buyNum == 1 && type == "-") return false;
+			if (type == "+") {
+				this.buyNum++;
+			} else {
+				this.buyNum--;
+			}
+		},
 		buyClick() {
 			if (!this.showSku) {
 				this.showSku = true;
@@ -217,46 +216,56 @@ export default {
 	}
 };
 </script>
+<style lang="less">
+.pro-detail {
+	.content {
+		img {
+			width: 100%;
+		}
+	}
+}
+</style>
+
 <style lang="less" scoped>
 .page {
 	.sku-dg {
-    .spec-area {
-      .buy-num {
-        padding-top: 0.2rem;
-        .mod-num {
-          border: 0.01rem solid #e2e2e2;
-          border-radius: 0.04rem;
-          .num{
-            padding: 0.04rem 0.2rem;
-            border-right: 0.01rem solid #e2e2e2;
-            border-left: 0.01rem solid #e2e2e2;
-            font-size: 0.14rem;
-            font-weight: bold;
-          }
-          .num-click{
-            width: 0.28rem;
-            height: 0.28rem;
-            color: #8c8c8c;
-          }
-        }
-      }
-      .spec-item {
-        border-bottom: 0.01rem solid #dcdcdc;
-        .title{
-          padding: 0.16rem 0;
-        }
-        .specs{
-          padding-bottom: 0.28rem;
-          .spec{
-            margin-right: 0.16rem;
-            padding: 0.05rem 0.1rem;
-            font-size: 0.14rem;
-            background: #f0f0f0;
-            border-radius: 0.04rem;
-          }
-        }
-      }
-    }
+		.spec-area {
+			.buy-num {
+				padding-top: 0.2rem;
+				.mod-num {
+					border: 0.01rem solid #e2e2e2;
+					border-radius: 0.04rem;
+					.num {
+						padding: 0.04rem 0.2rem;
+						border-right: 0.01rem solid #e2e2e2;
+						border-left: 0.01rem solid #e2e2e2;
+						font-size: 0.14rem;
+						font-weight: bold;
+					}
+					.num-click {
+						width: 0.28rem;
+						height: 0.28rem;
+						color: #8c8c8c;
+					}
+				}
+			}
+			.spec-item {
+				border-bottom: 0.01rem solid #dcdcdc;
+				.title {
+					padding: 0.16rem 0;
+				}
+				.specs {
+					padding-bottom: 0.28rem;
+					.spec {
+						margin-right: 0.16rem;
+						padding: 0.05rem 0.1rem;
+						font-size: 0.14rem;
+						background: #f0f0f0;
+						border-radius: 0.04rem;
+					}
+				}
+			}
+		}
 		.pro-info {
 			.txt-info {
 				padding-left: 0.2rem;
@@ -372,12 +381,12 @@ export default {
 		}
 		.pro-detail {
 			padding-top: 0.35rem;
-      background: #fff;
-      .content{
-        img{
-          width: 100%;
-        }
-      }
+			background: #fff;
+			.content {
+				img {
+					width: 100%;
+				}
+			}
 			.title {
 				span {
 					padding: 0 0.14rem;
