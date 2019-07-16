@@ -51,6 +51,18 @@ export default {
   // 获取测评列表
   getProductionAppraisal(data){
     return post('/v2/star/production/appraisal', data)
+  },
+  // 下单
+  productionPay(data){
+    return post('/v2/h5/star/production/pay', data)
+  },
+  // 获取地址信息
+  getAddress(data){
+    return post('/v2/h5/getaddress', data)
+  },
+  // 新增 、 修改地址信息
+  addressModify(data){
+    return post('/v2/h5/address', data)
   }
 }
 

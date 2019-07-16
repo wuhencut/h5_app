@@ -22,5 +22,13 @@ export default new Router({
     path: '/order',
     name: 'order',
     component: () => import('./views/Order.vue')
+  },{
+    path: '/addressList',
+    name: 'addressList',
+    component: () => import('./views/AddressList.vue')
+  },{
+    path: '/addAddress',
+    name: 'addAddress',
+    component: () => import('./views/AddAddress.vue')
   }]
 })

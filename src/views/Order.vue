@@ -1,5 +1,9 @@
 <template>
 	<div class="page">
+    <div class="header-back">
+      <router-link to="productDetail" class="icon-back"></router-link>
+      <p class="txt-s18 txt-bold">确认订单</p>
+    </div>
 		<div class="pro-info flex">
 			<img
 				class="pro-img"
@@ -24,11 +28,12 @@
     <div class="address-info flex" @click="setAddress">
       <span class="address-icon"></span>
       <div class="detail flex-s1">
-        <p class="name-tel txt-s14">
+        <!-- <p class="name-tel txt-s14">
           <span class="name">阿三</span>
           <span class="tel">13588878765</span>
         </p>
-        <p class="address txt-gray txt-s12">浙江 杭州 西湖 郡原公元里郡原公元里郡原公元里</p>
+        <p class="address txt-gray txt-s12">浙江 杭州 西湖 郡原公元里郡原公元里郡原公元里</p> -->
+        <p class="txt-s14 txt-gray">请选择收货地址</p>
       </div>
       <span class="right-arrow"></span>
     </div>
@@ -75,14 +80,46 @@ export default {
 	data() {
 		return {
       currNum: 1,
+      defaultAddress: '1231',
+      req: {
+        production_id: '',
+        sku_id: '',
+        num: '',
+        address_id: '',
+        inviter: '',
+      }
     };
 	},
 	mounted() {},
 	methods: {
-    submit(){
-
+    async submit(){
+      let res = await this.$api.productionPay(this.req);
+      if(res.errorCode == 0){
+        window.open(res.data.alipay_order_str)
+      } else {
+        this.$toast(res.errorDescription)
+      }
     },
-    setAddress(){},
+    // 获取默认地址
+    async getDeAddress(){
+      let res = await this.$api.getAddress();
+      if(res.errorCode == 0){
+        if(res.data && res.data.length){
+        for(let i = 0; i < res.data.length; i ++){
+            if(res.data[i].isDefault){
+              this.defaultAddress = res.data[i]
+            }
+          }
+        }
+      }
+    },
+    setAddress(){
+      if(this.defaultAddress){
+        this.$router.push({name: 'addressList'})
+      } else {
+        this.$router.push({name: 'addAddress'})
+      }
+    },
     changeNum(type){
       if(type == '-' && this.currNum == 1)return false;
       if(type == '+'){
@@ -94,10 +131,31 @@ export default {
   }
 };
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .page {
   padding-bottom: 0.68rem;
   background: #f4f3f3;
+  padding-top: 0.44rem;
+  .header-back{
+    height: 0.44rem;
+    position:fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    line-height: 0.44rem;
+    text-align: center;
+    border-bottom: 0.01rem solid #dcdbdc;
+    .icon-back{
+      background: url('../assets/img/icon-back.png') center center no-repeat;
+      background-size: 0.08rem 0.16rem;
+      position: absolute;
+      left: 0.18rem;
+      top: 0.14rem;
+      width: 0.08rem;
+      height: 0.16rem;
+    }
+  }
   .page-footer {
     position: fixed;
     bottom: 0;
