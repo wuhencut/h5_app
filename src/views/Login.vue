@@ -33,6 +33,12 @@
 				:class="{'btn-disabled': canClick == false, 'btn-active': canClick == true}"
 				@click="loginClick"
 			>注册或登录</div>
+      <div class="flex agreement">
+        <span @click="isAgree = !isAgree" class="radio" :class="{'checked': isAgree, 'uncheck': !isAgree}"></span>
+        <p class="go-agreement txt-s12 txt-gray">
+          同意<a href="http://www.ingtube.com/agreement.html">服务协议</a>
+        </p>
+      </div>
 		</div>
 	</div>
 </template>
@@ -46,7 +52,8 @@ export default {
 			phoneCode: "1111",
 			leftSec: "", // 剩余秒
 			codeSent: false, // 验证码已经发送
-			timer: null // 定时器
+      timer: null, // 定时器
+      isAgree: true, // 是否同意协议
 		};
 	},
 	watch: {
@@ -75,7 +82,7 @@ export default {
 				return false;
 			}
 			this.codeSent = true;
-			this.leftSec = 10;
+			this.leftSec = 60;
 			let timer;
 			timer = setInterval(() => {
 				this.leftSec -= 1;
@@ -88,6 +95,10 @@ export default {
 		},
 		async loginClick() {
       if (!this.canClick) return false;
+      if(!this.isAgree){
+        this.$toast('请同意服务协议再申请注册');
+        return false;
+      }
       this.$router.push({ name: "productDetail" });
 			let res = await this.$api.login({
 				code: this.phoneCode,
@@ -160,7 +171,29 @@ export default {
 		left: 0;
 		right: 0;
 		height: 1.54rem;
-		padding: 0 0.32rem;
+    padding: 0 0.32rem;
+    .agreement {
+      margin-top: 0.44rem;
+      .go-agreement {
+        padding-left: 0.08rem;
+        a{
+          color: #939393;
+          text-decoration: underline;
+        }
+      }
+      .radio{
+        width: 0.16rem;
+        height: 0.16rem;
+        &.uncheck{
+          background: url('../assets/img/uncheck.png') center center no-repeat;
+          background-size: 0.16rem 0.16rem;
+        }
+        &.checked{
+          background: url('../assets/img/checked.png') center center no-repeat;
+          background-size: 0.16rem 0.16rem;
+        }
+      }
+    }
 		.btn {
 			padding: 0.15rem 0;
 			border-radius: 0.08rem;

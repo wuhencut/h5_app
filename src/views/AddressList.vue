@@ -5,7 +5,7 @@
 		</div>
 		<div class="main">
 			<div class="title txt-s28 txt-bold">收货地址</div>
-			<div class="addresss-item flex" v-for="item in list">
+			<div class="addresss-item flex" v-for="item in list" @click="choose(item)">
 				<div class="detail flex-s1">
 					<p class="name-tel flex">
 						<span class="name">{{item.recipient}}</span>
@@ -41,6 +41,10 @@ export default {
 	},
 	mounted() {},
 	methods: {
+    async choose(item){
+      localStorage.setItem('addressData', JSON.stringify(item))
+      this.$router.go(-1)
+    },
 		setAddress(item) {
 			this.$router.push({
 				name: "addAddress",

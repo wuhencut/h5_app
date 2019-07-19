@@ -13,6 +13,10 @@
 				<input class="inp" type="text" placeholder="县区" v-model="address.county" />
 				<input class="inp" type="text" placeholder="详细地址，如街道、楼牌号等" v-model="address.address" />
 			</div>
+			<div class="flex mod-default">
+				<span @click="address.is_default = !address.is_default" class="radio" :class="{'default': address.is_default, 'undefault': !address.is_default}"></span>
+				<p class="txt-s12 txt-gray txt">默认收货地址</p>
+			</div>
 		</div>
 		<div to="addAddress" class="footer-btn txt-s20 txt-bold" @click="save">保存</div>
 	</div>
@@ -73,11 +77,31 @@ export default {
 	padding: 0.44rem 0 0.6rem 0;
 	background: #fff;
 	.main {
-    padding: 0 0.24rem;
+		padding: 0 0.24rem;
 		.title {
 			padding-top: 0.12rem;
 			padding-bottom: 0.22rem;
 			color: #3e3d3e;
+		}
+		.mod-default {
+      padding-top: 0.24rem;
+      .txt{
+        padding-left: 0.1rem;
+      }
+			.radio {
+				width: 0.16rem;
+				height: 0.16rem;
+				&.default {
+					background: url("../assets/img/checked.png") center center
+						no-repeat;
+					background-size: 0.16rem 0.16rem;
+        }
+        &.undefault {
+					background: url("../assets/img/uncheck.png") center center
+						no-repeat;
+					background-size: 0.16rem 0.16rem;
+				}
+			}
 		}
 		.mod-inp {
 			.inp {
@@ -95,14 +119,14 @@ export default {
 		line-height: 0.5rem;
 		text-align: center;
 		background: #ffc300;
-    bottom: 0;
-    width: 3.75rem;
+		bottom: 0;
+		width: 3.75rem;
 	}
 
 	.header-back {
 		position: fixed;
-    top: 0;
-    width: 3.75rem;
+		top: 0;
+		width: 3.75rem;
 		height: 0.44rem;
 		.icon-back {
 			background: url("../assets/img/icon-back.png") center center

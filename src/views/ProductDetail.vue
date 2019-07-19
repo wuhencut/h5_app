@@ -10,22 +10,22 @@
 		</div>
 		<div class="main">
 			<van-swipe class="swiper" :autoplay="5000" indicator-color="#ffc300">
-				<van-swipe-item class="swiper-item" v-for="(item, index) in detailData.covers" :key="index">
+				<van-swipe-item class="swiper-item" v-for="(item, index) in detailData.star_production.images" :key="index">
 					<img :src="item" />
 				</van-swipe-item>
 			</van-swipe>
 			<!-- 产品文字信息 -->
 			<div class="pro-info">
 				<div class="pro-title txt-s18 txt-bold">{{detailData.title}}</div>
-				<div class="spots" v-if="detailData.highlights">
-					<span v-for="item in detailData.highlights" class="spot txt-s14">亮肤</span>
+				<div class="spots" v-if="detailData.star_production.spotlight">
+					<span v-for="item in detailData.star_production.spotlight" class="spot txt-s14">{{item}} </span>
 				</div>
 				<div class="price">
 					<!-- 当前价 -->
-					<span class="curr-price txt-s20 txt-bold">￥80 ~ ￥120</span>
+					<span class="curr-price txt-s20 txt-bold">￥{{detailData.star_production.price}}</span>
 					<!-- 划线价 -->
 					<span class="origin-price txt-s12">{{detailData.origin_price}}</span>
-					<span class="discount txt-s10">5.5折</span>
+					<span class="discount txt-s10">{{detailData.star_production.discount}}折</span>
 				</div>
 				<!-- 物流信息 -->
 				<div class="exp flex">
@@ -39,16 +39,16 @@
 					<span class="flex-s1 txt-s14">博主实测(3)</span>
 					<router-link class="check-all txt-s12" to="reviews">查看全部</router-link>
 				</div>
-				<div class="review-imgs flex">
-					<img v-for="item in imgs" :src="item" />
+				<div class="review-imgs flex" v-if="detailData.appraisal.images.length > 2">
+					<img v-for="item in detailData.appraisal.images.slice(0, 3)" :src="item" />
 				</div>
 			</div>
 			<!-- 公司信息 -->
 			<div class="company-intro"></div>
 			<!-- 品牌信息 -->
 			<div class="brand-info txt-s14 txt-bold flex">
-				<img src="https://quntidongli.oss-cn-shanghai.aliyuncs.com/banner/tuan/img/0107.jpg" />
-				CLIO珂莱欧
+				<img :src="detailData.brand.logo" />
+				{{detailData.brand.name}}
 			</div>
 			<!-- 差评详情 -->
 			<div class="pro-detail">
@@ -84,28 +84,37 @@
 			<div class="pro-info flex">
 				<img
 					class="header-pic"
-					src="https://quntidongli.oss-cn-shanghai.aliyuncs.com/banner/tuan/img/0107.jpg"
+					:src="currSpec.image ? currSpec.image : detailData.star_production.images[0]"
 					alt
 				/>
 				<div class="txt-info">
-					<p class="title">Brosway 施华洛世奇水晶锁骨链镀金天镀金天天镀金天天</p>
+					<p class="title">{{detailData.star_production.title}}</p>
 					<p class="guige">选择规格</p>
-					<div class="price-info flex">
+					<div v-show="showPrice" class="price-info flex">
 						<p class="flex-s1 price flex">
-							<span class="curr-price">￥3709</span>
-							<span class="origin-price">￥5299</span>
-							<span class="discount">5.5折</span>
+							<span class="curr-price">￥{{currSpec.price}}</span>
+							<span class="origin-price">￥{{detailData.star_production.origin_price}}</span>
+							<span class="discount">{{detailData.star_production.discount}}折</span>
 						</p>
-						<span class="num">x 1</span>
+						<span class="num">x {{currSpec.stock}}</span>
 					</div>
 				</div>
 			</div>
 			<!-- 选择规格 -->
 			<div class="spec-area">
-				<div class="spec-item" v-for="spec in detailData.spec_temp">
-					<p class="title">{{spec.name}}</p>
+				<div class="spec-item" v-for="(spec, index) in detailData.spec.params" :key="index">
+					<p class="title">{{spec.spec_type}}</p>
 					<div class="specs">
-						<span v-for="sub in spec.value" class="spec">{{sub}}</span>
+						<span
+							v-for="(sub,subIndex) in spec.spec_name"
+							:class="{
+              'spec': sub.canClick && indexChoose[index] != subIndex,
+              'disabled': !sub.canClick,
+              'active': indexChoose[index] == subIndex && sub.canClick
+              }"
+							:key="subIndex"
+							@click="specClick(sub, index, $event, subIndex)"
+						>{{sub.name}}</span>
 					</div>
 				</div>
 				<div class="buy-num flex">
@@ -125,82 +134,184 @@ export default {
 	name: "ProductDetail",
 	data() {
 		return {
+			showPrice: false, // 展示价格信息
+			currSpec: {},
+			selectArr: [], // 选择的规格
+			indexChoose: [], // 点击的index 用来判断是否展示激活
 			buyNum: 1, // 购买数量
 			showSku: false, // 展示sku
 			cover: false, // 是否上滑
-			navPro: true, // 当前在产品锚点
+			navPro: true, // 当前在产品锚点想
 			navDetail: false, // 当前在详情锚点
-			imgs: [
-				"https://quntidongli.oss-cn-shanghai.aliyuncs.com/banner/tuan/img/0107.jpg",
-				"https://quntidongli.oss-cn-shanghai.aliyuncs.com/banner/tuan/img/02.png",
-				"https://quntidongli.oss-cn-shanghai.aliyuncs.com/banner/tuan/img/03.png"
-			],
+      detailTemp: {}, // key-value保存spec
 			detailData: {
-				id: "1149201617124331520",
-				userId: "949701926113509376",
-				link:
-					"https://detail.tmall.com/item.htm?spm=875.7931836/B.20161011.16.28e94265EGodAw\u0026pvid=3467456d-ae7a-4556-927c-c5b4f383144a\u0026pos=16\u0026acm=201509290.1003.1.1286473\u0026id=43984164814\u0026scm=1007.12710.81710.100200300000000",
-				title: "LA MER海蓝之谜修护精华面霜补水保湿滋润舒缓",
-				covers: [
-					"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
-					"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01r8xcAw29dj5boNx55_!!2424298091.jpg_800x800q90.jpg",
-					"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01GFCln429dj5boPlHZ_!!2424298091.jpg_800x800q90.jpg",
-					"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01jAqLp529dj5gB13fl_!!2424298091.jpg_800x800q90.jpg",
-					"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01ohwGrd29dj4KmiCSh_!!2424298091.jpg_800x800q90.jpg"
-				],
-				description:
-					'\u003cp\u003e\u003cimg src="https://img.alicdn.com/imgextra/i4/2424298091/TB2zNk5X25TBuNjSspmXXaDRVXa_!!2424298091.jpg?t=1518422925000"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i3/2424298091/O1CN01lZwnS229dj3Eg1u2S_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i3/2424298091/O1CN01xqtW6429dj6rKpeEm_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i1/2424298091/O1CN01THueBu29dj6yg0KnM_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01af2G5y29dj6a0xTBO_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i4/2424298091/O1CN01TF2K0L29dj6ys1CzI_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01NTLmMF29dj3BLLKOg_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01ISWk5429dj4JiMajb_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i1/2424298091/O1CN01TGw3VI29dj6ynBFNx_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01cJlk8R29dj2p07e2M_!!2424298091.png"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01K9RJ1C29dj6kiyV7h_!!2424298091.jpg"\u003e\u003c/p\u003e',
-				spec_temp: [
-					{
-						name: "款式",
-						value: ["珍珠白"]
-					},
-					{
-						name: "净含量",
-						value: ["200ml", "400ml"]
-					}
-				],
-				specs: [
-					{
-						name: ["珍珠白", "200ml"],
-						image_link: "",
-						production_price: 1000,
-						id: 0,
-						num: 0
-					},
-					{
-						name: ["珍珠白", "400ml"],
-						image_link: "",
-						production_price: 1000,
-						id: 0,
-						num: 0
-					}
-				],
-				brand_id: 0,
-				brand: "KOSE COSMEPORT/高丝魅宝",
-				level_one_category_id: "1",
-				level_one_category: "美食生活",
-				level_two_category: "test0",
-				level_two_category_id: "7",
-				highlights: null,
-				status: 1,
-				productionStatus: 1,
-				numIid: 0,
-				version: "0",
-				origin_price: 0,
-				is_address_limit: 0,
-				address_limit: {
-					area: null,
-					area_type: 0
+				star_production: {
+					production_id: "12112",
+					title: "LA MER海蓝之谜修护精华面霜补水保湿滋润舒缓",
+					logo:
+						"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
+					origin_price: 3123,
+					price: 2222,
+					discount: 5.0,
+					images: [
+						"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01r8xcAw29dj5boNx55_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01GFCln429dj5boPlHZ_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01jAqLp529dj5gB13fl_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01ohwGrd29dj4KmiCSh_!!2424298091.jpg_800x800q90.jpg"
+					],
+					description:
+            '\u003cp\u003e\u003cimg src="https://img.alicdn.com/imgextra/i4/2424298091/TB2zNk5X25TBuNjSspmXXaDRVXa_!!2424298091.jpg?t=1518422925000"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i3/2424298091/O1CN01lZwnS229dj3Eg1u2S_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i3/2424298091/O1CN01xqtW6429dj6rKpeEm_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i1/2424298091/O1CN01THueBu29dj6yg0KnM_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01af2G5y29dj6a0xTBO_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i4/2424298091/O1CN01TF2K0L29dj6ys1CzI_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01NTLmMF29dj3BLLKOg_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01ISWk5429dj4JiMajb_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i1/2424298091/O1CN01TGw3VI29dj6ynBFNx_!!2424298091.jpg"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01cJlk8R29dj2p07e2M_!!2424298091.png"\u003e\u003cimg src="https://img.alicdn.com/imgextra/i2/2424298091/O1CN01K9RJ1C29dj6kiyV7h_!!2424298091.jpg"\u003e\u003c/p\u003e',
+            spotlight: ['亮肤', '美白']
+				},
+				spec: {
+					params: [
+						{
+							spec_type: "颜色",
+							spec_name: ["红色", "白色"]
+						},
+						{
+							spec_type: "尺寸",
+							spec_name: ["100ml", "200ml"]
+						}
+					],
+					conditions: [
+						{
+							condition: ["红色", "100ml"],
+							price: 123,
+							stock: 1,
+							image:
+								"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
+							sku_id: "1"
+						},
+						{
+							condition: ["红色", "200ml"],
+							price: 123,
+							stock: 2,
+							image:
+								"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01r8xcAw29dj5boNx55_!!2424298091.jpg_800x800q90.jpg",
+							sku_id: "2"
+						},
+						{
+							condition: ["白色", "100ml"],
+							price: 123,
+							stock: 0,
+							image:
+								"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01GFCln429dj5boPlHZ_!!2424298091.jpg_800x800q90.jpg",
+							sku_id: "3"
+						},
+						{
+							condition: ["白色", "200ml"],
+							price: 123,
+							stock: 4,
+							image:
+								"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01jAqLp529dj5gB13fl_!!2424298091.jpg_800x800q90.jpg",
+							sku_id: "4"
+						}
+					]
+				},
+				appraisal: {
+					total_num: 5,
+					images: [
+						"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01r8xcAw29dj5boNx55_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01GFCln429dj5boPlHZ_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i1/2424298091/O1CN01jAqLp529dj5gB13fl_!!2424298091.jpg_800x800q90.jpg",
+						"http://img.alicdn.com/imgextra/i3/2424298091/O1CN01ohwGrd29dj4KmiCSh_!!2424298091.jpg_800x800q90.jpg"
+					]
+				},
+				brand: {
+					logo:
+						"http://img.alicdn.com/imgextra/i4/2424298091/O1CN01CbPZMT29dj6vM8CUF_!!0-item_pic.jpg_800x800q90.jpg",
+					name: "品牌品牌品牌品牌品牌"
 				}
 			}
 		};
 	},
-	mounted() {},
+	mounted() {
+    this.initData(this.detailData.spec.conditions, this.detailData.spec.params);
+    // console.log(this.detailTemp, this.detailData.spec.params)
+	},
 	methods: {
+		// 修改数据结构: key-value
+		initData(specs, spec_temp) {
+			for (let i = 0; i < specs.length; i++) {
+				let name = specs[i].condition.join(","); // 字符串做key
+				this.detailTemp[name] = specs[i];
+			}
+			// value 用对象保存，为canClick做准备
+			for (let i = 0; i < spec_temp.length; i++) {
+				let newValue = []; // 新数组，用来存储对象格式的value，对象用来保存 canClick属性
+				for (let j = 0; j < spec_temp[i].spec_name.length; j++) {
+					let obj = {};
+					obj["name"] = spec_temp[i].spec_name[j];
+					newValue[j] = obj;
+				}
+				spec_temp[i].spec_name = newValue;
+			}
+			this.checkItem();
+		},
+		// 点击选择规格
+		//              父级index      子级index
+		specClick(spec, index, event, subIndex) {
+			if (!spec.canClick) return false;
+			if (this.selectArr[index] != spec.name) {
+				this.selectArr[index] = spec.name;
+				this.indexChoose[index] = subIndex;
+			} else {
+				this.selectArr[index] = ""
+				this.indexChoose[index] = -1; // 取消选中的规格
+      }
+      let isUse = true; // 确保选中的规则都有值，因为在此点击会把当前点击的设置成 ”“ ，
+      for(let i = 0; i< this.selectArr.length; i++){
+        if(!this.selectArr[i]){
+          isUse = false;
+        }
+      }
+			if (this.selectArr.length == this.detailData.spec.params.length && isUse) {
+        this.showPrice = true;
+        this.currSpec = this.detailTemp[this.selectArr.join(",")];
+        // 在选择sku前点击的数量错误的话需要矫正，防止提交过大的数量
+        this.buyNum = this.buyNum >= this.currSpec.stock ? this.currSpec.stock : this.buyNum;
+			} else {
+        this.showPrice = false;
+      }
+			this.checkItem();
+		},
+		// 检查库存，置灰按钮
+		checkItem() {
+			let option = this.detailData.spec.params,
+				result = []; // 选中的规格
+			for (let i = 0; i < option.length; i++) {
+				result[i] = this.selectArr[i] ? this.selectArr[i] : "";
+			}
+			for (let i = 0; i < option.length; i++) {
+				let last = result[i]; // 将选中的值存放到字符串中
+				for (let j = 0; j < option[i].spec_name.length; j++) {
+					result[i] = option[i].spec_name[j].name; // 直接覆盖
+					option[i].spec_name[j]["canClick"] = this.isClick(result); // 添加字段判断是否能点击
+				}
+				result[i] = last; // 还原
+			}
+			this.$forceUpdate(); // 重绘
+		},
+		// 通过库存判断是否可点击
+		isClick(result) {
+			for (let i = 0; i < result.length; i++) {
+				if (result[i] == "") {
+					return true; // 未选择，默认可点击
+				}
+			}
+			let key = result.join(",");
+			return this.detailTemp[key].stock == 0 ? false : true;
+		},
 		async changeNum(type) {
 			if (this.buyNum == 1 && type == "-") return false;
 			if (type == "+") {
+        if(this.buyNum >= this.currSpec.stock){
+          this.buyNum = this.currSpec.stock;
+          return false;
+        }
 				this.buyNum++;
 			} else {
 				this.buyNum--;
@@ -210,7 +321,20 @@ export default {
 			if (!this.showSku) {
 				this.showSku = true;
 			} else {
-				this.$router.push({ name: "order", query: {} });
+        if(!this.currSpec.sku_id)return false;
+        if(!this.currSpec.image){
+          this.currSpec.images = this.detailData.star_production.images[0];
+        }
+        let orderData = {
+          currSpec: this.currSpec,
+          discount: this.detailData.star_production.discount,
+          title: this.detailData.star_production.title,
+          origin_price: this.detailData.star_production.origin_price,
+          buyNum: this.buyNum,
+          production_id: this.detailData.star_production.production_id
+        }
+        localStorage.setItem('orderData', JSON.stringify(orderData));
+				this.$router.push({ name: "order"});
 			}
 		}
 	}
@@ -256,11 +380,24 @@ export default {
 				}
 				.specs {
 					padding-bottom: 0.28rem;
+					.active {
+						border: 0.01rem solid #ffc300;
+						color: #ffc300;
+						background: #fffae6;
+					}
 					.spec {
+						background: #f0f0f0;
+					}
+					.disabled {
+						background: #f0f0f0;
+						opacity: 0.5;
+					}
+					.spec,
+					.active,
+					.disabled {
 						margin-right: 0.16rem;
 						padding: 0.05rem 0.1rem;
 						font-size: 0.14rem;
-						background: #f0f0f0;
 						border-radius: 0.04rem;
 					}
 				}
@@ -268,6 +405,7 @@ export default {
 		}
 		.pro-info {
 			.txt-info {
+        height: 1.08rem;
 				padding-left: 0.2rem;
 				.guige {
 					color: #9f9da1;
@@ -292,7 +430,7 @@ export default {
 						font-size: 0.1rem;
 						border-radius: 0.02rem;
 						border: 0.01rem solid #959297;
-						padding: 0 0.02rem;
+            padding: 0 0.02rem;
 					}
 					.origin-price {
 						padding-left: 0.1rem;
@@ -315,8 +453,8 @@ export default {
 				object-fit: cover;
 			}
 		}
-    position: fixed;
-    width: 3.75rem;
+		position: fixed;
+		width: 3.75rem;
 		bottom: 0.5rem;
 		background: #fff;
 		z-index: 101;
@@ -335,8 +473,8 @@ export default {
 	.footer {
 		z-index: 101;
 		position: fixed;
-    bottom: 0;
-    width: 3.76rem;
+		bottom: 0;
+		width: 3.76rem;
 		height: 0.5rem;
 		line-height: 0.5rem;
 		font-size: 0.18rem;
@@ -462,7 +600,8 @@ export default {
 				.discount {
 					border: 0.01rem solid #959297;
 					color: #9f9da1;
-					padding: 0 0.02rem;
+          padding: 0 0.02rem;
+          vertical-align: 0.03rem;
 				}
 			}
 			.pro-title {

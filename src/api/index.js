@@ -63,6 +63,9 @@ export default {
   // 新增 、 修改地址信息
   addressModify(data){
     return post('/v2/h5/address', data)
+  },
+  getPayPrice(data){
+    return post('/v2/h5/star/production/pay_info', data)
   }
 }
 
